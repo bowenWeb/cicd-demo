@@ -1,0 +1,39 @@
+name: CI/CD 测试
+# 当代码被推送到 main 分支时触发此工作流程
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # 设置 Node.js 环境
+    - name: Setup Node.js
+      uses: actions/setup-node@v4.0.2
+      with:
+        node-version: 18
+
+    # 安装项目依赖
+    - name: Install Dependencies
+      run: npm install
+
+    # 执行构建脚本
+    - name: Build
+      run: npm run build
+
+    # 部署
+    - name: Appleboy
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_USER }}
+        password: ${{ secrets.REMOTE_PASSWORD }}
+        port: 22
+        source: "dist/"
+        target: "/root/web/cicd/"
+
+
